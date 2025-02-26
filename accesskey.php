@@ -49,12 +49,11 @@ class plgSystemAccesskey extends CMSPlugin
             $visitorIP = getenv('HTTP_FORWARDED');
         else if (getenv('REMOTE_ADDR'))
             $visitorIP = getenv('REMOTE_ADDR');
-        $whitelist = array_map('trim', explode(',', $this->params->get('whitelist')));
+        $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
         if (in_array($visitorIP, $whitelist)) {
             $session->set('accesskey', true);
             return;
         }
-
 
         // Check if security key has been entered
         $this->correctKey = !is_null($this->app->input->get($this->params->get('key')));
