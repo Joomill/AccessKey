@@ -23,7 +23,7 @@ class plgSystemAccesskey extends CMSPlugin
     public function onAfterInitialise(): void
     {
 
-        $session = Factory::getSession();
+        $session = $this->app->getSession();
         if ($session->get('accesskey')) {
             return;
         }
