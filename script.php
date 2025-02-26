@@ -79,7 +79,7 @@ class plgSystemAccesskeyInstallerScript
     {
         if ($type === 'install')
         {
-            echo '<style>a[target="_blank"]::before {display: none};</style>';
+            echo '<style>a[target="_blank"]::before {display: none;}</style>';
             echo '<div class="mb-3 text-center"><img src="https://www.joomill-extensions.com/images/joomill-logo.png" alt="Joomill Extensions" /></div>';
             echo '<div class="mb-3 text-center"><strong>' . Text::_('PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION') . '</strong></div>';
             echo '<div class="mb-3 text-center">' . Text::_('PLG_SYSTEM_ACCESSKEY_THANKYOU') . '</div>';
