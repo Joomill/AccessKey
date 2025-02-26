@@ -1,6 +1,6 @@
 <?php
 /*
- *  package: Access Key
+ *  package: Joomla Access Key plugin
  *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
  *  license: GNU General Public License version 2 or later
  *  link: https://www.joomill-extensions.com
