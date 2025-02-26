@@ -9,7 +9,6 @@
 // No direct access.
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
@@ -44,11 +43,9 @@ class plgSystemAccesskeyInstallerScript
      */
     public function preflight($type, $parent): bool
     {
-        if ($type !== 'uninstall')
-        {
+        if ($type !== 'uninstall') {
             // Check for the minimum PHP version before continuing
-            if (!empty($this->minimumPHPVersion) && version_compare(PHP_VERSION, $this->minimumPHPVersion, '<'))
-            {
+            if (!empty($this->minimumPHPVersion) && version_compare(PHP_VERSION, $this->minimumPHPVersion, '<')) {
                 Log::add(
                     Text::sprintf('JLIB_INSTALLER_MINIMUM_PHP', $this->minimumPHPVersion),
                     Log::WARNING,
@@ -57,8 +54,7 @@ class plgSystemAccesskeyInstallerScript
                 return false;
             }
             // Check for the minimum Joomla version before continuing
-            if (!empty($this->minimumJoomlaVersion) && version_compare(JVERSION, $this->minimumJoomlaVersion, '<'))
-            {
+            if (!empty($this->minimumJoomlaVersion) && version_compare(JVERSION, $this->minimumJoomlaVersion, '<')) {
                 Log::add(
                     Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomlaVersion),
                     Log::WARNING,
