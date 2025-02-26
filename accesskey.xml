@@ -1,88 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.6" type="plugin" group="system" method="upgrade">
-	<name>PLG_SYSTEM_ACCESSKEY</name>
-	<creationDate>october 2023</creationDate>
-	<author>Joomill</author>
-	<authorEmail>info@joomill-extensions.com</authorEmail>
-	<authorUrl>https://www.joomill-extensions.com</authorUrl>
-	<copyright>Copyright (C) 2023 Joomill Extensions. All rights reserved.</copyright>
-	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-	<version>1.0.0</version>
-	<description>PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION</description>
-	
-	<!-- Scripts to run on installation -->
-	<scriptfile>script.php</scriptfile>
+    <name>PLG_SYSTEM_ACCESSKEY</name>
+    <creationDate>february 2025</creationDate>
+    <author>Joomill</author>
+    <authorEmail>info@joomill-extensions.com</authorEmail>
+    <authorUrl>https://www.joomill-extensions.com</authorUrl>
+    <copyright>Copyright (C) 2025 Joomill Extensions. All rights reserved.</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <version>1.1.0</version>
+    <description>PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION</description>
 
-	<!-- Files -->
-	<files>
-      	<filename plugin="accesskey">accesskey.php</filename>
-      	<filename>script.php</filename>
-		<folder>elements</folder>
-		<folder>language</folder>
-  	</files>
+    <!-- Scripts to run on installation -->
+    <scriptfile>script.php</scriptfile>
 
-  	<!-- Configuration / Parameters -->
-	<config>
-    <fields name="params" addfieldpath="plugins/system/accesskey/elements/">
-        <fieldset name="basic">
-	        <field 
-	        	name="key"
-				type="text"
-				default=""
-				label="PLG_SYSTEM_ACCESSKEY_KEY_LABEL"
-				description="PLG_SYSTEM_ACCESSKEY_KEY_DESC"
-				required="true" 
-			/>
+    <!-- Files -->
+    <files>
+        <filename plugin="accesskey">accesskey.php</filename>
+        <filename>script.php</filename>
+        <folder>elements</folder>
+        <folder>language</folder>
+    </files>
 
-			
-			<field 
-				name="whitelist"
-				type="text"
-				size="50"
-				default=""
-				label="PLG_SYSTEM_ACCESSKEY_WHITELIST_LABEL"
-				description="PLG_SYSTEM_ACCESSKEY_WHITELIST_DESC"
-			/>
+    <!-- Configuration / Parameters -->
+    <config>
+        <fields name="params" addfieldpath="plugins/system/accesskey/elements/">
+            <fieldset name="basic">
+                <field
+                    name="key"
+                    type="text"
+                    default=""
+                    label="PLG_SYSTEM_ACCESSKEY_KEY_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_KEY_DESC"
+                    required="true"
+                />
 
-			<field
-				name="ipAddress"
-				type="ip"
-				label="PLG_SYSTEM_ACCESSKEY_CURRENT_IPADDRESS_LABEL"
-				description="PLG_SYSTEM_ACCESSKEY_CURRENT_IPADDRESS_DESC"
-			/>
+                <field
+                    name="whitelist"
+                    type="text"
+                    size="50"
+                    default=""
+                    label="PLG_SYSTEM_ACCESSKEY_WHITELIST_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_WHITELIST_DESC"
+                />
 
-			<field 
-				name="failAction"
-				type="radio"
-				class="btn-group"
-				default="message"
-				label="PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_LABEL"
-				description="PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_DESC">
-			  	<option value="message">PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_MESSAGE</option>
-			  	<option value="redirect">PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_REDIRECT</option>
-			</field>
+                <field
+                    name="ipAddress"
+                    type="ip"
+                    label="PLG_SYSTEM_ACCESSKEY_CURRENT_IPADDRESS_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_CURRENT_IPADDRESS_DESC"
+                />
 
-			<field 
-				name="message"
-			    type="textarea"
-			    default="There is nothing to see here!"
-			    label="PLG_SYSTEM_ACCESSKEY_MESSAGE_LABEL"
-			    description="PLG_SYSTEM_ACCESSKEY_MESSAGE_DESC"
-			    showon="failAction:message" 
-			/>
+                <field
+                    name="failAction"
+                    type="radio"
+                    class="btn-group"
+                    default="message"
+                    label="PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_DESC">
+                <option value="message">PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_MESSAGE</option>
+                <option value="redirect">PLG_SYSTEM_ACCESSKEY_FAIL_ACTION_REDIRECT</option>
+                </field>
 
-			<field 
-				name="redirectUrl"
-				type="url"
-				label="PLG_SYSTEM_ACCESSKEY_REDIRECT_LABEL"
-				description="PLG_SYSTEM_ACCESSKEY_REDIRECT_DESC"
-				showon="failAction:redirect" 
-			/>
-		</fieldset>
-	    </fields>
-	</config>
+                <field
+                    name="message"
+                    type="textarea"
+                    default="There is nothing to see here!"
+                    label="PLG_SYSTEM_ACCESSKEY_MESSAGE_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_MESSAGE_DESC"
+                    showon="failAction:message"
+                />
 
-	<changelogurl><![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=changelog&amp;format=xml&amp;cat=19]]></changelogurl>
+                <field
+                    name="redirectUrl"
+                    type="url"
+                    label="PLG_SYSTEM_ACCESSKEY_REDIRECT_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_REDIRECT_DESC"
+                    showon="failAction:redirect"
+                />
+            </fieldset>
+        </fields>
+    </config>
 
-    <updateservers><server type="extension" name="Joomill Access Key"><![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=updater&amp;format=xml&amp;cat=19]]></server></updateservers>
+    <changelogurl>
+        <![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=changelog&amp;format=xml&amp;cat=19]]></changelogurl>
+
+    <updateservers>
+        <server type="extension" name="Joomill Access Key">
+            <![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=updater&amp;format=xml&amp;cat=19]]></server>
+    </updateservers>
 </extension>
