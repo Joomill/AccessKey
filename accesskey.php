@@ -13,9 +13,11 @@ defined('_JEXEC') or die('Restricted access');
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Log\Log;
 
-// Load helper class
+// Load helper classes
 require_once __DIR__ . '/helpers/IpHelper.php';
+require_once __DIR__ . '/helpers/AccessKeyException.php';
 
 /**
  * Access Key System Plugin
@@ -57,37 +59,72 @@ class plgSystemAccesskey extends CMSPlugin
      */
     public function onAfterInitialise(): void
     {
+        try {
+            $session = $this->app->getSession();
+            if ($session->get('accesskey')) {
+                return;
+            }
 
-        $session = $this->app->getSession();
-        if ($session->get('accesskey')) {
-            return;
+            // Check if key is configured
+            if (!$this->params->get('key')) {
+                Log::add('Access Key plugin is enabled but no key is configured', Log::WARNING, 'accesskey');
+                return;
+            }
+
+            if (!$this->app->isClient('administrator')) {
+                return;
+            }
+
+            try {
+                // Get visitor IP using helper class
+                $visitorIP = AccessKeyIpHelper::getVisitorIp();
+                $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
+                if (AccessKeyIpHelper::isIpInWhitelist($visitorIP, $whitelist)) {
+                    $session->set('accesskey', true);
+                    return;
+                }
+            } catch (AccessKeyException $e) {
+                // Log IP detection error but continue with key check
+                Log::add('IP detection failed: ' . $e->getMessage(), Log::WARNING, 'accesskey');
+                // IP check failed, but we'll still check for the key
+            }
+
+            // Check if security key has been entered
+            $this->correctKey = !is_null($this->app->input->get($this->params->get('key')));
+            if ($this->correctKey) {
+                $session->set('accesskey', true);
+                return;
+            } else {
+                // Access denied - handle according to configuration
+                $this->handleAccessDenied();
+            }
+        } catch (\Exception $e) {
+            // Log any unexpected errors
+            Log::add('Unexpected error in Access Key plugin: ' . $e->getMessage(), Log::ERROR, 'accesskey');
+
+            // In case of critical error, default to showing an error message
+            header('HTTP/1.0 500 Internal Server Error');
+            echo 'An error occurred in the Access Key plugin. Please check the logs.';
+            $this->app->close();
         }
+    }
 
-        if (!$this->params->get('key')) {
-            return;
-        }
-
-        if (!$this->app->isClient('administrator')) {
-            return;
-        }
-
-        // Get visitor IP using helper class
-        $visitorIP = AccessKeyIpHelper::getVisitorIp();
-        $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
-        if (in_array($visitorIP, $whitelist)) {
-            $session->set('accesskey', true);
-            return;
-        }
-
-        // Check if security key has been entered
-        $this->correctKey = !is_null($this->app->input->get($this->params->get('key')));
-        if ($this->correctKey) {
-            $session->set('accesskey', true);
-            return;
-        } else {
+    /**
+     * Handle access denied according to plugin configuration
+     *
+     * @return void
+     *
+     * @throws AccessKeyException If access is denied
+     * @since  1.0.0
+     */
+    private function handleAccessDenied(): void
+    {
+        try {
             if ($this->params->get('failAction') == "message") {
-                header('HTTP/1.0 401 Unauthorized');
-                die($this->params->get('message'));
+                $message = $this->params->get('message') ?: 'Unauthorized access';
+                Log::add('Access denied: ' . $message, Log::INFO, 'accesskey');
+
+                throw AccessKeyException::unauthorized($message);
             }
 
             if ($this->params->get('failAction') == "redirect") {
@@ -98,10 +135,40 @@ class plgSystemAccesskey extends CMSPlugin
                     $url = URI::root();
                 }
 
+                Log::add('Access denied: Redirecting to ' . $url, Log::INFO, 'accesskey');
                 $this->app->redirect($url);
-                die;
+                $this->app->close();
             }
-        }
+        } catch (AccessKeyException $e) {
+            // Set the appropriate HTTP status code
+            header('HTTP/1.0 ' . $e->getCode() . ' ' . $this->getHttpStatusText($e->getCode()));
 
+            // Output the error message
+            echo $e->getMessage();
+
+            // End the application
+            $this->app->close();
+        }
+    }
+
+    /**
+     * Get HTTP status text for a given code
+     *
+     * @param   int  $code  HTTP status code
+     *
+     * @return  string  HTTP status text
+     *
+     * @since   1.0.0
+     */
+    private function getHttpStatusText(int $code): string
+    {
+        $statusTexts = [
+            401 => 'Unauthorized',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            500 => 'Internal Server Error'
+        ];
+
+        return $statusTexts[$code] ?? 'Unknown Error';
     }
 }

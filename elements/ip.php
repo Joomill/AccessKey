@@ -13,6 +13,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Form\FormHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Log\Log;
 
 // Load helper class
 require_once dirname(__DIR__) . '/helpers/IpHelper.php';
@@ -44,11 +45,21 @@ class JFormFieldIP extends Joomla\CMS\Form\Field\TextField
      */
     protected function getInput(): string
     {
-        // Get IP address using helper class
-        $ipaddress = AccessKeyIpHelper::getVisitorIp(true);
+        try {
+            // Get IP address using helper class
+            $ipaddress = AccessKeyIpHelper::getVisitorIp(true);
 
-        return
-            '<code>' . $ipaddress . '</code>';
+            // Additional output sanitization for display
+            $ipaddress = htmlspecialchars($ipaddress, ENT_QUOTES, 'UTF-8');
+
+            return '<code>' . $ipaddress . '</code>';
+        } catch (\Exception $e) {
+            // Log the error
+            Log::add('Error in IP form field: ' . $e->getMessage(), Log::ERROR, 'accesskey');
+
+            // Return a fallback message
+            return '<code>Error detecting IP</code>';
+        }
     }
 
 
