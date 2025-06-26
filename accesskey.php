@@ -36,19 +36,23 @@ class plgSystemAccesskey extends CMSPlugin
             return;
         }
 
-        $visitorIP = '';
-        if (getenv('HTTP_CLIENT_IP'))
-            $visitorIP = getenv('HTTP_CLIENT_IP');
-        else if (getenv('HTTP_X_FORWARDED_FOR'))
-            $visitorIP = getenv('HTTP_X_FORWARDED_FOR');
-        else if (getenv('HTTP_X_FORWARDED'))
-            $visitorIP = getenv('HTTP_X_FORWARDED');
-        else if (getenv('HTTP_FORWARDED_FOR'))
-            $visitorIP = getenv('HTTP_FORWARDED_FOR');
-        else if (getenv('HTTP_FORWARDED'))
-            $visitorIP = getenv('HTTP_FORWARDED');
-        else if (getenv('REMOTE_ADDR'))
-            $visitorIP = getenv('REMOTE_ADDR');
+        // Get visitor IP using Joomla's API
+        $visitorIP = $this->app->input->server->get('HTTP_CLIENT_IP', '');
+        if (empty($visitorIP)) {
+            $visitorIP = $this->app->input->server->get('HTTP_X_FORWARDED_FOR', '');
+        }
+        if (empty($visitorIP)) {
+            $visitorIP = $this->app->input->server->get('HTTP_X_FORWARDED', '');
+        }
+        if (empty($visitorIP)) {
+            $visitorIP = $this->app->input->server->get('HTTP_FORWARDED_FOR', '');
+        }
+        if (empty($visitorIP)) {
+            $visitorIP = $this->app->input->server->get('HTTP_FORWARDED', '');
+        }
+        if (empty($visitorIP)) {
+            $visitorIP = $this->app->input->server->get('REMOTE_ADDR', '');
+        }
         $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
         if (in_array($visitorIP, $whitelist)) {
             $session->set('accesskey', true);

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.6" type="plugin" group="system" method="upgrade">
+<extension type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_ACCESSKEY</name>
-    <creationDate>february 2025</creationDate>
-    <author>Joomill</author>
+    <description>PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION</description>
+    <creationDate>June 2025</creationDate>
+    <author>Jeroen Moolenschot | Joomill</author>
     <authorEmail>info@joomill-extensions.com</authorEmail>
     <authorUrl>https://www.joomill-extensions.com</authorUrl>
     <copyright>Copyright (C) 2025 Joomill Extensions. All rights reserved.</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>1.1.0</version>
-    <description>PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION</description>
+    <version>1.2.0</version>
 
     <!-- Scripts to run on installation -->
     <scriptfile>script.php</scriptfile>
