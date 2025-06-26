@@ -56,7 +56,6 @@ class plgSystemAccesskey extends CMSPlugin
             if ($this->params->get('failAction') == "message") {
                 header('HTTP/1.0 401 Unauthorized');
                 die($this->params->get('message'));
-                return;
             }
 
             if ($this->params->get('failAction') == "redirect") {
