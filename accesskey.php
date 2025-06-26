@@ -12,6 +12,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 
+// Load helper class
+require_once __DIR__ . '/helpers/IpHelper.php';
+
 class plgSystemAccesskey extends CMSPlugin
 {
 
@@ -36,23 +39,8 @@ class plgSystemAccesskey extends CMSPlugin
             return;
         }
 
-        // Get visitor IP using Joomla's API
-        $visitorIP = $this->app->input->server->get('HTTP_CLIENT_IP', '');
-        if (empty($visitorIP)) {
-            $visitorIP = $this->app->input->server->get('HTTP_X_FORWARDED_FOR', '');
-        }
-        if (empty($visitorIP)) {
-            $visitorIP = $this->app->input->server->get('HTTP_X_FORWARDED', '');
-        }
-        if (empty($visitorIP)) {
-            $visitorIP = $this->app->input->server->get('HTTP_FORWARDED_FOR', '');
-        }
-        if (empty($visitorIP)) {
-            $visitorIP = $this->app->input->server->get('HTTP_FORWARDED', '');
-        }
-        if (empty($visitorIP)) {
-            $visitorIP = $this->app->input->server->get('REMOTE_ADDR', '');
-        }
+        // Get visitor IP using helper class
+        $visitorIP = AccessKeyIpHelper::getVisitorIp();
         $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
         if (in_array($visitorIP, $whitelist)) {
             $session->set('accesskey', true);

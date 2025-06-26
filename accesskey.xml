@@ -18,6 +18,7 @@
         <filename plugin="accesskey">accesskey.php</filename>
         <filename>script.php</filename>
         <folder>elements</folder>
+        <folder>helpers</folder>
         <folder>language</folder>
     </files>
 

@@ -12,6 +12,9 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Form\FormHelper;
 use Joomla\CMS\Factory;
 
+// Load helper class
+require_once dirname(__DIR__) . '/helpers/IpHelper.php';
+
 FormHelper::loadFieldClass('list');
 
 class JFormFieldIP extends Joomla\CMS\Form\Field\ListField
@@ -20,27 +23,8 @@ class JFormFieldIP extends Joomla\CMS\Form\Field\ListField
 
     protected function getInput()
     {
-        // Get IP address using Joomla's API
-        $app = Factory::getApplication();
-        $ipaddress = $app->input->server->get('HTTP_CLIENT_IP', '');
-        if (empty($ipaddress)) {
-            $ipaddress = $app->input->server->get('HTTP_X_FORWARDED_FOR', '');
-        }
-        if (empty($ipaddress)) {
-            $ipaddress = $app->input->server->get('HTTP_X_FORWARDED', '');
-        }
-        if (empty($ipaddress)) {
-            $ipaddress = $app->input->server->get('HTTP_FORWARDED_FOR', '');
-        }
-        if (empty($ipaddress)) {
-            $ipaddress = $app->input->server->get('HTTP_FORWARDED', '');
-        }
-        if (empty($ipaddress)) {
-            $ipaddress = $app->input->server->get('REMOTE_ADDR', '');
-        }
-        if (empty($ipaddress)) {
-            $ipaddress = 'UNKNOWN';
-        }
+        // Get IP address using helper class
+        $ipaddress = AccessKeyIpHelper::getVisitorIp(true);
 
         return
             '<code>' . $ipaddress . '</code>';
