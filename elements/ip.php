@@ -1,9 +1,11 @@
 <?php
-/*
- *  package: Joomla Access Key plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 2 or later
- *  link: https://www.joomill-extensions.com
+/**
+ * @package     Joomla.Plugin
+ * @subpackage  System.Accesskey
+ *
+ * @copyright   Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ * @license     GNU General Public License version 2 or later
+ * @link        https://www.joomill-extensions.com
  */
 
 // No direct access.
@@ -17,10 +19,29 @@ require_once dirname(__DIR__) . '/helpers/IpHelper.php';
 
 FormHelper::loadFieldClass('list');
 
+/**
+ * IP Form Field class for the Access Key plugin
+ * Displays the current visitor's IP address
+ *
+ * @since  1.0.0
+ */
 class JFormFieldIP extends Joomla\CMS\Form\Field\ListField
 {
+    /**
+     * The form field type
+     *
+     * @var    string
+     * @since  1.0.0
+     */
     protected $type = 'ip';
 
+    /**
+     * Method to get the field input markup
+     *
+     * @return  string  The field input markup
+     *
+     * @since   1.0.0
+     */
     protected function getInput()
     {
         // Get IP address using helper class

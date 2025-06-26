@@ -1,9 +1,11 @@
 <?php
-/*
- *  package: Joomla Access Key plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 2 or later
- *  link: https://www.joomill-extensions.com
+/**
+ * @package     Joomla.Plugin
+ * @subpackage  System.Accesskey
+ *
+ * @copyright   Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ * @license     GNU General Public License version 2 or later
+ * @link        https://www.joomill-extensions.com
  */
 
 // No direct access.
@@ -13,6 +15,11 @@ use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 
+/**
+ * Installation script class for Access Key plugin
+ *
+ * @since  1.0.0
+ */
 class plgSystemAccesskeyInstallerScript
 {
     /**

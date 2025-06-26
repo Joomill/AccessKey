@@ -1,9 +1,11 @@
 <?php
-/*
- *  package: Joomla Access Key plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 2 or later
- *  link: https://www.joomill-extensions.com
+/**
+ * @package     Joomla.Plugin
+ * @subpackage  System.Accesskey
+ *
+ * @copyright   Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ * @license     GNU General Public License version 2 or later
+ * @link        https://www.joomill-extensions.com
  */
 
 defined('_JEXEC') or die('Restricted access');
@@ -15,14 +17,44 @@ use Joomla\CMS\Uri\Uri;
 // Load helper class
 require_once __DIR__ . '/helpers/IpHelper.php';
 
+/**
+ * Access Key System Plugin
+ *
+ * @since  1.0.0
+ */
 class plgSystemAccesskey extends CMSPlugin
 {
-
+    /**
+     * Load the language file on instantiation
+     *
+     * @var    boolean
+     * @since  1.0.0
+     */
     protected $autoloadLanguage = true;
+
+    /**
+     * Application object
+     *
+     * @var    \Joomla\CMS\Application\CMSApplication
+     * @since  1.0.0
+     */
     protected $app;
 
+    /**
+     * Flag to indicate if the correct key was provided
+     *
+     * @var    boolean
+     * @since  1.0.0
+     */
     private $correctKey = false;
 
+    /**
+     * Runs after Joomla has been initialized
+     *
+     * @return  void
+     *
+     * @since   1.0.0
+     */
     public function onAfterInitialise(): void
     {
 
