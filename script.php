@@ -82,7 +82,7 @@ class plgSystemAccesskeyInstallerScript
      * @return  boolean  True on success
      * @since  4.0.0
      */
-    public function postflight($type, $parent)
+    public function postflight(string $type, InstallerAdapter $parent): bool
     {
         if ($type === 'install')
         {

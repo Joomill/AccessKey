@@ -27,35 +27,35 @@ class AccessKeyIpHelper
      *
      * @since   1.0.0
      */
-    public static function getVisitorIp($fallbackToUnknown = false)
+    public static function getVisitorIp(bool $fallbackToUnknown = false): string
     {
         $app = Factory::getApplication();
         $ipaddress = $app->input->server->get('HTTP_CLIENT_IP', '');
-        
+
         if (empty($ipaddress)) {
             $ipaddress = $app->input->server->get('HTTP_X_FORWARDED_FOR', '');
         }
-        
+
         if (empty($ipaddress)) {
             $ipaddress = $app->input->server->get('HTTP_X_FORWARDED', '');
         }
-        
+
         if (empty($ipaddress)) {
             $ipaddress = $app->input->server->get('HTTP_FORWARDED_FOR', '');
         }
-        
+
         if (empty($ipaddress)) {
             $ipaddress = $app->input->server->get('HTTP_FORWARDED', '');
         }
-        
+
         if (empty($ipaddress)) {
             $ipaddress = $app->input->server->get('REMOTE_ADDR', '');
         }
-        
+
         if (empty($ipaddress) && $fallbackToUnknown) {
             $ipaddress = 'UNKNOWN';
         }
-        
+
         return $ipaddress;
     }
 }

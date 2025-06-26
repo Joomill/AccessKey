@@ -17,7 +17,7 @@ use Joomla\CMS\Factory;
 // Load helper class
 require_once dirname(__DIR__) . '/helpers/IpHelper.php';
 
-FormHelper::loadFieldClass('list');
+FormHelper::loadFieldClass('text');
 
 /**
  * IP Form Field class for the Access Key plugin
@@ -25,7 +25,7 @@ FormHelper::loadFieldClass('list');
  *
  * @since  1.0.0
  */
-class JFormFieldIP extends Joomla\CMS\Form\Field\ListField
+class JFormFieldIP extends Joomla\CMS\Form\Field\TextField
 {
     /**
      * The form field type
@@ -42,7 +42,7 @@ class JFormFieldIP extends Joomla\CMS\Form\Field\ListField
      *
      * @since   1.0.0
      */
-    protected function getInput()
+    protected function getInput(): string
     {
         // Get IP address using helper class
         $ipaddress = AccessKeyIpHelper::getVisitorIp(true);
