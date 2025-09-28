@@ -2,29 +2,29 @@
 <extension type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_ACCESSKEY</name>
     <description>PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION</description>
-    <creationDate>June 2025</creationDate>
     <author>Jeroen Moolenschot | Joomill</author>
     <authorEmail>info@joomill-extensions.com</authorEmail>
     <authorUrl>https://www.joomill-extensions.com</authorUrl>
-    <copyright>Copyright (C) 2025 Joomill Extensions. All rights reserved.</copyright>
-    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>1.2.0</version>
+    <license>GNU General Public License version 3 or later</license>
+    <creationDate>September 2025</creationDate>
+    <copyright>(C) 2025 Joomill Extensions</copyright>
+    <version>2.0.0</version>
+    <namespace path="src">Joomill\Plugin\System\Accesskey</namespace>
 
     <!-- Scripts to run on installation -->
     <scriptfile>script.php</scriptfile>
 
     <!-- Files -->
     <files>
-        <filename plugin="accesskey">accesskey.php</filename>
-        <filename>script.php</filename>
-        <folder>elements</folder>
-        <folder>helpers</folder>
+        <filename plugin="accesskey">script.php</filename>
         <folder>language</folder>
+        <folder>services</folder>
+        <folder>src</folder>
     </files>
 
     <!-- Configuration / Parameters -->
     <config>
-        <fields name="params" addfieldpath="plugins/system/accesskey/elements/">
+        <fields name="params" addfieldprefix="Joomill\Plugin\System\Accesskey\Field">
             <fieldset name="basic">
                 <field
                     name="key"
@@ -78,15 +78,27 @@
                     description="PLG_SYSTEM_ACCESSKEY_REDIRECT_DESC"
                     showon="failAction:redirect"
                 />
+
+                <field
+                    name="whitelist_message"
+                    type="textarea"
+                    default=""
+                    label="PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_LABEL"
+                    description="PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_DESC"
+                />
             </fieldset>
         </fields>
     </config>
 
+    <!-- Changelog -->
     <changelogurl>
-        <![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=changelog&amp;format=xml&amp;cat=19]]></changelogurl>
+        <![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=changelog&amp;format=xml&amp;cat=19]]>
+    </changelogurl>
 
+    <!-- Updateserver -->
     <updateservers>
         <server type="extension" name="Joomill Access Key">
-            <![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=updater&amp;format=xml&amp;cat=19]]></server>
+            <![CDATA[https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&amp;view=updater&amp;format=xml&amp;cat=19]]>
+        </server>
     </updateservers>
 </extension>

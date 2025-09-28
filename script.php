@@ -1,11 +1,9 @@
 <?php
-/**
- * @package     Joomla.Plugin
- * @subpackage  System.Accesskey
- *
- * @copyright   Copyright (c) 2025. Jeroen Moolenschot | Joomill
- * @license     GNU General Public License version 2 or later
- * @link        https://www.joomill-extensions.com
+/*
+ *  package: Joomill Access Key plugin
+ *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ *  license: GNU General Public License version 3 or later
+ *  link: https://www.joomill-extensions.com
  */
 
 // No direct access.

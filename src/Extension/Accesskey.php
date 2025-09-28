@@ -1,66 +1,73 @@
 <?php
-/**
- * @package     Joomla.Plugin
- * @subpackage  System.Accesskey
- *
- * @copyright   Copyright (c) 2025. Jeroen Moolenschot | Joomill
- * @license     GNU General Public License version 2 or later
- * @link        https://www.joomill-extensions.com
+/*
+ *  package: Joomill Access Key plugin
+ *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ *  license: GNU General Public License version 3 or later
+ *  link: https://www.joomill-extensions.com
  */
 
-defined('_JEXEC') or die('Restricted access');
+namespace Joomill\Plugin\System\Accesskey\Extension;
 
+defined('_JEXEC') or die;
+
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
-use Joomla\CMS\Log\Log;
-
-// Load helper classes
-require_once __DIR__ . '/helpers/IpHelper.php';
-require_once __DIR__ . '/helpers/AccessKeyException.php';
+use Joomill\Plugin\System\Accesskey\Helper\IpHelper;
+use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
 
 /**
  * Access Key System Plugin
  *
- * @since  1.0.0
+ * @since  2.0.0
  */
-class plgSystemAccesskey extends CMSPlugin
+class Accesskey extends CMSPlugin
 {
     /**
      * Load the language file on instantiation
      *
      * @var    boolean
-     * @since  1.0.0
+     * @since  2.0.0
      */
     protected $autoloadLanguage = true;
 
-    /**
-     * Application object
-     *
-     * @var    \Joomla\CMS\Application\CMSApplication
-     * @since  1.0.0
-     */
-    protected $app;
 
     /**
      * Flag to indicate if the correct key was provided
      *
      * @var    boolean
-     * @since  1.0.0
+     * @since  2.0.0
      */
     private $correctKey = false;
+
+    /**
+     * Returns an array of events this subscriber will listen to.
+     *
+     * @return  array
+     *
+     * @since   2.0.0
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'onAfterInitialise' => 'onAfterInitialise',
+        ];
+    }
+
 
     /**
      * Runs after Joomla has been initialized
      *
      * @return  void
      *
-     * @since   1.0.0
+     * @since   2.0.0
      */
     public function onAfterInitialise(): void
     {
         try {
-            $session = $this->app->getSession();
+            $session = Factory::getApplication()->getSession();
             if ($session->get('accesskey')) {
                 return;
             }
@@ -71,41 +78,51 @@ class plgSystemAccesskey extends CMSPlugin
                 return;
             }
 
-            if (!$this->app->isClient('administrator')) {
+            if (!Factory::getApplication()->isClient('administrator')) {
                 return;
             }
 
             try {
                 // Get visitor IP using helper class
-                $visitorIP = AccessKeyIpHelper::getVisitorIp();
+                $ipHelper = new IpHelper();
+                $visitorIP = $ipHelper->getVisitorIp();
                 $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
-                if (AccessKeyIpHelper::isIpInWhitelist($visitorIP, $whitelist)) {
+                
+                if ($ipHelper->isIpInWhitelist($visitorIP, $whitelist)) {
+                    // Check if access key is provided in URL
+                    $accessKeyProvided = !is_null(Factory::getApplication()->input->get($this->params->get('key')));
+                    
+                    if (!$accessKeyProvided) {
+                        // Show message for whitelisted IP without access key
+                        $this->showWhitelistMessage();
+                    }
+                    
                     $session->set('accesskey', true);
                     return;
                 }
             } catch (AccessKeyException $e) {
                 // Log IP detection error but continue with key check
                 Log::add('IP detection failed: ' . $e->getMessage(), Log::WARNING, 'accesskey');
-                // IP check failed, but we'll still check for the key
             }
 
             // Check if security key has been entered
-            $this->correctKey = !is_null($this->app->input->get($this->params->get('key')));
+            $this->correctKey = !is_null(Factory::getApplication()->input->get($this->params->get('key')));
             if ($this->correctKey) {
                 $session->set('accesskey', true);
                 return;
-            } else {
-                // Access denied - handle according to configuration
-                $this->handleAccessDenied();
             }
+
+            // Access denied - handle according to configuration
+            $this->handleAccessDenied();
+
         } catch (\Exception $e) {
             // Log any unexpected errors
             Log::add('Unexpected error in Access Key plugin: ' . $e->getMessage(), Log::ERROR, 'accesskey');
 
             // In case of critical error, default to showing an error message
-            header('HTTP/1.0 500 Internal Server Error');
+            Factory::getApplication()->setHeader('Status', '500 Internal Server Error', true);
             echo 'An error occurred in the Access Key plugin. Please check the logs.';
-            $this->app->close();
+            Factory::getApplication()->close();
         }
     }
 
@@ -115,40 +132,61 @@ class plgSystemAccesskey extends CMSPlugin
      * @return void
      *
      * @throws AccessKeyException If access is denied
-     * @since  1.0.0
+     * @since  2.0.0
      */
     private function handleAccessDenied(): void
     {
         try {
-            if ($this->params->get('failAction') == "message") {
+            if ($this->params->get('failAction') === 'message') {
                 $message = $this->params->get('message') ?: 'Unauthorized access';
                 Log::add('Access denied: ' . $message, Log::INFO, 'accesskey');
 
                 throw AccessKeyException::unauthorized($message);
             }
 
-            if ($this->params->get('failAction') == "redirect") {
+            if ($this->params->get('failAction') === 'redirect') {
                 $url = $this->params->get('redirectUrl');
 
-                // Fallback to site
+                // Fallback to site root
                 if (!$url) {
-                    $url = URI::root();
+                    $url = Uri::root();
                 }
 
                 Log::add('Access denied: Redirecting to ' . $url, Log::INFO, 'accesskey');
-                $this->app->redirect($url);
-                $this->app->close();
+                Factory::getApplication()->redirect($url);
             }
         } catch (AccessKeyException $e) {
             // Set the appropriate HTTP status code
-            header('HTTP/1.0 ' . $e->getCode() . ' ' . $this->getHttpStatusText($e->getCode()));
+            Factory::getApplication()->setHeader('Status', $e->getCode() . ' ' . $this->getHttpStatusText($e->getCode()), true);
 
             // Output the error message
             echo $e->getMessage();
 
             // End the application
-            $this->app->close();
+            Factory::getApplication()->close();
         }
+    }
+
+    /**
+     * Show informational message for whitelisted IP without access key
+     *
+     * @return void
+     *
+     * @since  2.0.0
+     */
+    private function showWhitelistMessage(): void
+    {
+        $app = Factory::getApplication();
+        
+        // Get the message from plugin parameters or use default from language file
+        $defaultMessage = Factory::getLanguage()->_('PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_DEFAULT');
+        $message = $this->params->get('whitelist_message', $defaultMessage);
+        
+        // Add the message to the application message queue
+        $app->enqueueMessage($message, 'info');
+        
+        // Log the message
+        Log::add('Whitelisted IP accessed without access key: ' . $message, Log::INFO, 'accesskey');
     }
 
     /**
@@ -158,7 +196,7 @@ class plgSystemAccesskey extends CMSPlugin
      *
      * @return  string  HTTP status text
      *
-     * @since   1.0.0
+     * @since   2.0.0
      */
     private function getHttpStatusText(int $code): string
     {

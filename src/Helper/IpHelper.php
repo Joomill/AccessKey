@@ -1,27 +1,28 @@
 <?php
 /*
- *  package: Joomla Access Key plugin
+ *  package: Joomill Access Key plugin
  *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 2 or later
+ *  license: GNU General Public License version 3 or later
  *  link: https://www.joomill-extensions.com
  */
 
-// No direct access.
+namespace Joomill\Plugin\System\Accesskey\Helper;
+
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
-
-// Load custom exception class
-require_once __DIR__ . '/AccessKeyException.php';
+use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
 
 /**
- * Helper class for IP address detection
+ * Helper class for IP address detection and validation
  *
- * @since  1.0.0
+ * @since  2.0.0
  */
-class AccessKeyIpHelper
+class IpHelper
 {
+
+
     /**
      * Check if an IP address is within a CIDR range
      *
@@ -30,9 +31,9 @@ class AccessKeyIpHelper
      *
      * @return  bool    True if the IP is in the CIDR range, false otherwise
      *
-     * @since   1.0.0
+     * @since   2.0.0
      */
-    public static function isIpInCidrRange(string $ip, string $cidr): bool
+    public function isIpInCidrRange(string $ip, string $cidr): bool
     {
         // Validate inputs
         if (empty($ip) || empty($cidr)) {
@@ -94,15 +95,20 @@ class AccessKeyIpHelper
      *
      * @return  bool    True if the IP is in the whitelist, false otherwise
      *
-     * @since   1.0.0
+     * @since   2.0.0
      */
-    public static function isIpInWhitelist(string $ip, array $whitelist): bool
+    public function isIpInWhitelist(string $ip, array $whitelist): bool
     {
         if (empty($ip) || empty($whitelist)) {
             return false;
         }
 
         foreach ($whitelist as $entry) {
+            $entry = trim($entry);
+            if (empty($entry)) {
+                continue;
+            }
+
             // Check for exact IP match
             if ($ip === $entry) {
                 return true;
@@ -110,7 +116,7 @@ class AccessKeyIpHelper
 
             // Check for CIDR match
             if (strpos($entry, '/') !== false) {
-                if (self::isIpInCidrRange($ip, $entry)) {
+                if ($this->isIpInCidrRange($ip, $entry)) {
                     return true;
                 }
             }
@@ -126,9 +132,9 @@ class AccessKeyIpHelper
      *
      * @return  string  The sanitized IP address or empty string if invalid
      *
-     * @since   1.0.0
+     * @since   2.0.0
      */
-    public static function sanitizeIp(string $ip): string
+    public function sanitizeIp(string $ip): string
     {
         // Remove any whitespace
         $ip = trim($ip);
@@ -155,60 +161,44 @@ class AccessKeyIpHelper
     }
 
     /**
-     * Get the visitor's IP address
+     * Get the visitor's IP address from various server variables
      *
-     * @param   bool  $fallbackToUnknown  Whether to fallback to 'UNKNOWN' if no IP is found
+     * @param   bool  $fallbackToUnknown  Whether to return 'Unknown' if IP cannot be detected
      *
      * @return  string  The visitor's IP address
      *
-     * @since   1.0.0
+     * @throws  AccessKeyException  If IP detection fails and no fallback is requested
+     * @since   2.0.0
      */
-    public static function getVisitorIp(bool $fallbackToUnknown = false): string
+    public function getVisitorIp(bool $fallbackToUnknown = false): string
     {
-        try {
-            $app = Factory::getApplication();
-            $ipaddress = self::sanitizeIp($app->input->server->get('HTTP_CLIENT_IP', ''));
+        $ipSources = [
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_REAL_IP',
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED',
+            'REMOTE_ADDR'
+        ];
 
-            if (empty($ipaddress)) {
-                $ipaddress = self::sanitizeIp($app->input->server->get('HTTP_X_FORWARDED_FOR', ''));
-            }
-
-            if (empty($ipaddress)) {
-                $ipaddress = self::sanitizeIp($app->input->server->get('HTTP_X_FORWARDED', ''));
-            }
-
-            if (empty($ipaddress)) {
-                $ipaddress = self::sanitizeIp($app->input->server->get('HTTP_FORWARDED_FOR', ''));
-            }
-
-            if (empty($ipaddress)) {
-                $ipaddress = self::sanitizeIp($app->input->server->get('HTTP_FORWARDED', ''));
-            }
-
-            if (empty($ipaddress)) {
-                $ipaddress = self::sanitizeIp($app->input->server->get('REMOTE_ADDR', ''));
-            }
-
-            if (empty($ipaddress)) {
-                if ($fallbackToUnknown) {
-                    $ipaddress = 'UNKNOWN';
-                    Log::add('Failed to detect visitor IP address, using fallback value', Log::WARNING, 'accesskey');
-                } else {
-                    throw AccessKeyException::ipDetectionFailed();
+        foreach ($ipSources as $source) {
+            $ip = Factory::getApplication()->input->server->getString($source, '');
+            if (!empty($ip)) {
+                $sanitizedIp = $this->sanitizeIp($ip);
+                if (!empty($sanitizedIp)) {
+                    Log::add('Visitor IP detected from ' . $source . ': ' . $sanitizedIp, Log::DEBUG, 'accesskey');
+                    return $sanitizedIp;
                 }
             }
-
-            return $ipaddress;
-        } catch (\Exception $e) {
-            // Log the error
-            Log::add('Error detecting visitor IP: ' . $e->getMessage(), Log::ERROR, 'accesskey');
-
-            // If fallback is allowed, return UNKNOWN, otherwise rethrow
-            if ($fallbackToUnknown) {
-                return 'UNKNOWN';
-            }
-
-            throw AccessKeyException::ipDetectionFailed($e->getMessage(), $e->getCode());
         }
+
+        // If we reach here, IP detection failed
+        if ($fallbackToUnknown) {
+            Log::add('Failed to detect visitor IP address, using fallback', Log::WARNING, 'accesskey');
+            return 'Unknown';
+        }
+
+        throw AccessKeyException::ipDetectionFailed('Unable to detect visitor IP address from any source');
     }
 }
