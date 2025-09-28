@@ -56,7 +56,6 @@ class Accesskey extends CMSPlugin
         ];
     }
 
-
     /**
      * Runs after Joomla has been initialized
      *
