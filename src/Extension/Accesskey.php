@@ -87,14 +87,11 @@ class Accesskey extends CMSPlugin
                 $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
                 
                 if ($ipHelper->isIpInWhitelist($visitorIP, $whitelist)) {
-                    // Check if access key is provided in URL
-                    $accessKeyProvided = !is_null(Factory::getApplication()->input->get($this->params->get('key')));
-                    
-                    if (!$accessKeyProvided) {
-                        // Show message for whitelisted IP without access key
+                    // Show a message for whitelisted IPs that did not also supply the key
+                    if (!$this->isAccessKeyProvided()) {
                         $this->showWhitelistMessage();
                     }
-                    
+
                     $session->set('accesskey', true);
                     return;
                 }
@@ -104,7 +101,7 @@ class Accesskey extends CMSPlugin
             }
 
             // Check if security key has been entered
-            $this->correctKey = !is_null(Factory::getApplication()->input->get($this->params->get('key')));
+            $this->correctKey = $this->isAccessKeyProvided();
             if ($this->correctKey) {
                 $session->set('accesskey', true);
                 return;
@@ -122,6 +119,30 @@ class Accesskey extends CMSPlugin
             echo 'An error occurred in the Access Key plugin. Please check the logs.';
             Factory::getApplication()->close();
         }
+    }
+
+    /**
+     * Determine whether the configured access key is present in the request.
+     *
+     * The configured key name acts as the trigger parameter (e.g. ?secretkey).
+     * Presence is detected with a unique sentinel default so an absent key can
+     * never be confused with an empty or falsy query value.
+     *
+     * @return  boolean  True when the key parameter is present in the request
+     *
+     * @since   2.0.0
+     */
+    private function isAccessKeyProvided(): bool
+    {
+        $keyName = trim((string) $this->params->get('key'));
+
+        if ($keyName === '') {
+            return false;
+        }
+
+        $sentinel = "\0__accesskey_absent__\0";
+
+        return Factory::getApplication()->input->get($keyName, $sentinel, 'raw') !== $sentinel;
     }
 
     /**
