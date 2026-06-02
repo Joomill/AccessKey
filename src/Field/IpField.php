@@ -10,6 +10,7 @@ namespace Joomill\Plugin\System\Accesskey\Field;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\TextField;
 use Joomla\CMS\Log\Log;
 use Joomill\Plugin\System\Accesskey\Helper\IpHelper;
@@ -42,7 +43,7 @@ class IpField extends TextField
     {
         try {
             // Get IP address using helper class
-            $ipHelper = new IpHelper();
+            $ipHelper = new IpHelper(Factory::getApplication());
             $ipaddress = $ipHelper->getVisitorIp(true);
 
             // Additional output sanitization for display

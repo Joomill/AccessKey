@@ -10,7 +10,7 @@ namespace Joomill\Plugin\System\Accesskey\Helper;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Log\Log;
 use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
 
@@ -21,6 +21,25 @@ use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
  */
 class IpHelper
 {
+    /**
+     * The application to read request data from.
+     *
+     * @var    CMSApplicationInterface
+     * @since  2.0.0
+     */
+    private CMSApplicationInterface $app;
+
+    /**
+     * Constructor.
+     *
+     * @param   CMSApplicationInterface  $app  The application to read request data from
+     *
+     * @since   2.0.0
+     */
+    public function __construct(CMSApplicationInterface $app)
+    {
+        $this->app = $app;
+    }
 
 
     /**
@@ -179,7 +198,7 @@ class IpHelper
      */
     public function getVisitorIp(bool $fallbackToUnknown = false): string
     {
-        $app   = Factory::getApplication();
+        $app   = $this->app;
         $input = $app->getInput();
 
         // Only consult forwarded headers when the admin has declared a trusted proxy.

@@ -10,7 +10,6 @@ namespace Joomill\Plugin\System\Accesskey\Extension;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -66,7 +65,7 @@ class Accesskey extends CMSPlugin
     public function onAfterInitialise(): void
     {
         try {
-            $session = Factory::getApplication()->getSession();
+            $session = $this->getApplication()->getSession();
             if ($session->get('accesskey')) {
                 return;
             }
@@ -77,13 +76,13 @@ class Accesskey extends CMSPlugin
                 return;
             }
 
-            if (!Factory::getApplication()->isClient('administrator')) {
+            if (!$this->getApplication()->isClient('administrator')) {
                 return;
             }
 
             try {
                 // Get visitor IP using helper class
-                $ipHelper = new IpHelper();
+                $ipHelper = new IpHelper($this->getApplication());
                 $visitorIP = $ipHelper->getVisitorIp();
                 $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
                 
@@ -116,9 +115,9 @@ class Accesskey extends CMSPlugin
             Log::add('Unexpected error in Access Key plugin: ' . $e->getMessage(), Log::ERROR, 'accesskey');
 
             // In case of critical error, default to showing an error message
-            Factory::getApplication()->setHeader('Status', '500 Internal Server Error', true);
+            $this->getApplication()->setHeader('Status', '500 Internal Server Error', true);
             echo 'An error occurred in the Access Key plugin. Please check the logs.';
-            Factory::getApplication()->close();
+            $this->getApplication()->close();
         }
     }
 
@@ -143,7 +142,7 @@ class Accesskey extends CMSPlugin
 
         $sentinel = "\0__accesskey_absent__\0";
 
-        return Factory::getApplication()->getInput()->get($keyName, $sentinel, 'raw') !== $sentinel;
+        return $this->getApplication()->getInput()->get($keyName, $sentinel, 'raw') !== $sentinel;
     }
 
     /**
@@ -174,10 +173,10 @@ class Accesskey extends CMSPlugin
                 }
 
                 Log::add('Access denied: Redirecting to ' . $url, Log::INFO, 'accesskey');
-                Factory::getApplication()->redirect($url);
+                $this->getApplication()->redirect($url);
             }
         } catch (AccessKeyException $e) {
-            $app = Factory::getApplication();
+            $app = $this->getApplication();
 
             // Set the appropriate HTTP status code
             $app->setHeader('Status', $e->getCode() . ' ' . $this->getHttpStatusText($e->getCode()), true);
@@ -204,7 +203,7 @@ class Accesskey extends CMSPlugin
      */
     private function showWhitelistMessage(): void
     {
-        $app = Factory::getApplication();
+        $app = $this->getApplication();
         
         // Get the message from plugin parameters or use default from language file
         $defaultMessage = Text::_('PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_DEFAULT');
