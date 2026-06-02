@@ -25,7 +25,7 @@ class IpHelper
      * The application to read request data from.
      *
      * @var    CMSApplicationInterface
-     * @since  2.0.0
+     * @since  2.1.0
      */
     private CMSApplicationInterface $app;
 
@@ -34,7 +34,7 @@ class IpHelper
      *
      * @param   CMSApplicationInterface  $app  The application to read request data from
      *
-     * @since   2.0.0
+     * @since   2.1.0
      */
     public function __construct(CMSApplicationInterface $app)
     {

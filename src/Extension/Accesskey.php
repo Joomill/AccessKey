@@ -134,7 +134,7 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
      *
      * @return  boolean  True when the key parameter is present in the request
      *
-     * @since   2.0.0
+     * @since   2.1.0
      */
     private function isAccessKeyProvided(): bool
     {
