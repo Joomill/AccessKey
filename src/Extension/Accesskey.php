@@ -11,6 +11,7 @@ namespace Joomill\Plugin\System\Accesskey\Extension;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
@@ -206,7 +207,7 @@ class Accesskey extends CMSPlugin
         $app = Factory::getApplication();
         
         // Get the message from plugin parameters or use default from language file
-        $defaultMessage = Factory::getLanguage()->_('PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_DEFAULT');
+        $defaultMessage = Text::_('PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_DEFAULT');
         $message = $this->params->get('whitelist_message', $defaultMessage);
         
         // Add the message to the application message queue
