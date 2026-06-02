@@ -7,7 +7,7 @@
     <authorUrl>https://www.joomill-extensions.com</authorUrl>
     <license>GNU General Public License version 3 or later</license>
     <creationDate>June 2026</creationDate>
-    <copyright>(C) 2025 Joomill Extensions</copyright>
+    <copyright>(C) 2026 Joomill Extensions</copyright>
     <version>2.1.0</version>
     <namespace path="src">Joomill\Plugin\System\Accesskey</namespace>
 
