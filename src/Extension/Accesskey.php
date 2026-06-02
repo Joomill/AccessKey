@@ -1,7 +1,7 @@
 <?php
 /*
  *  package: Joomill Access Key plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
  *  license: GNU General Public License version 3 or later
  *  link: https://www.joomill-extensions.com
  */
@@ -89,7 +89,7 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
                 $ipHelper = new IpHelper($this->getApplication());
                 $visitorIP = $ipHelper->getVisitorIp();
                 $whitelist = array_map('trim', explode(',', $this->params->get('whitelist') ?? ''));
-                
+
                 if ($ipHelper->isIpInWhitelist($visitorIP, $whitelist)) {
                     // Show a message for whitelisted IPs that did not also supply the key
                     if (!$this->isAccessKeyProvided()) {
@@ -208,14 +208,14 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
     private function showWhitelistMessage(): void
     {
         $app = $this->getApplication();
-        
+
         // Get the message from plugin parameters or use default from language file
         $defaultMessage = Text::_('PLG_SYSTEM_ACCESSKEY_WHITELIST_MESSAGE_DEFAULT');
         $message = $this->params->get('whitelist_message', $defaultMessage);
-        
+
         // Add the message to the application message queue
         $app->enqueueMessage($message, 'info');
-        
+
         // Log the message
         Log::add('Whitelisted IP accessed without access key: ' . $message, Log::INFO, 'accesskey');
     }
