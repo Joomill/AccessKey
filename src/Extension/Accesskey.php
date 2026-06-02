@@ -142,7 +142,7 @@ class Accesskey extends CMSPlugin
 
         $sentinel = "\0__accesskey_absent__\0";
 
-        return Factory::getApplication()->input->get($keyName, $sentinel, 'raw') !== $sentinel;
+        return Factory::getApplication()->getInput()->get($keyName, $sentinel, 'raw') !== $sentinel;
     }
 
     /**

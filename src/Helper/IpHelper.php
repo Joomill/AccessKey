@@ -180,7 +180,7 @@ class IpHelper
     public function getVisitorIp(bool $fallbackToUnknown = false): string
     {
         $app   = Factory::getApplication();
-        $input = $app->input;
+        $input = $app->getInput();
 
         // Only consult forwarded headers when the admin has declared a trusted proxy.
         if ($app->get('behind_loadbalancer', false)) {
