@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Event\EventInterface;
 use Joomla\Event\SubscriberInterface;
 use Joomill\Plugin\System\Accesskey\Helper\IpHelper;
 use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
@@ -59,11 +60,13 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
     /**
      * Runs after Joomla has been initialized
      *
+     * @param   EventInterface  $event  The event being handled
+     *
      * @return  void
      *
      * @since   2.0.0
      */
-    public function onAfterInitialise(): void
+    public function onAfterInitialise(EventInterface $event): void
     {
         try {
             $session = $this->getApplication()->getSession();
