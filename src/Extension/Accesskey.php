@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Event\SubscriberInterface;
 use Joomill\Plugin\System\Accesskey\Helper\IpHelper;
 use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
 
@@ -22,7 +23,7 @@ use Joomill\Plugin\System\Accesskey\Exception\AccessKeyException;
  *
  * @since  2.0.0
  */
-class Accesskey extends CMSPlugin
+class Accesskey extends CMSPlugin implements SubscriberInterface
 {
     /**
      * Load the language file on instantiation
