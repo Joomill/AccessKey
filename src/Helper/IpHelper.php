@@ -161,7 +161,14 @@ class IpHelper
     }
 
     /**
-     * Get the visitor's IP address from various server variables
+     * Get the visitor's IP address.
+     *
+     * By default only REMOTE_ADDR is trusted, since it is the only source that
+     * cannot be spoofed by the client. Forwarded headers (X-Forwarded-For etc.)
+     * are only honoured when the site is explicitly configured to sit behind a
+     * trusted load balancer / reverse proxy (Joomla's "behind_loadbalancer"
+     * global setting). Trusting these headers unconditionally would allow an
+     * attacker to forge a whitelisted IP and bypass the access key entirely.
      *
      * @param   bool  $fallbackToUnknown  Whether to return 'Unknown' if IP cannot be detected
      *
@@ -172,25 +179,37 @@ class IpHelper
      */
     public function getVisitorIp(bool $fallbackToUnknown = false): string
     {
-        $ipSources = [
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_REAL_IP',
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED',
-            'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED',
-            'REMOTE_ADDR'
-        ];
+        $app   = Factory::getApplication();
+        $input = $app->input;
 
-        foreach ($ipSources as $source) {
-            $ip = Factory::getApplication()->input->server->getString($source, '');
-            if (!empty($ip)) {
-                $sanitizedIp = $this->sanitizeIp($ip);
-                if (!empty($sanitizedIp)) {
-                    Log::add('Visitor IP detected from ' . $source . ': ' . $sanitizedIp, Log::DEBUG, 'accesskey');
-                    return $sanitizedIp;
+        // Only consult forwarded headers when the admin has declared a trusted proxy.
+        if ($app->get('behind_loadbalancer', false)) {
+            $proxyHeaders = [
+                'HTTP_X_FORWARDED_FOR',
+                'HTTP_X_REAL_IP',
+                'HTTP_CLIENT_IP',
+                'HTTP_X_FORWARDED',
+                'HTTP_FORWARDED_FOR',
+                'HTTP_FORWARDED'
+            ];
+
+            foreach ($proxyHeaders as $source) {
+                $ip = $input->server->getString($source, '');
+                if (!empty($ip)) {
+                    $sanitizedIp = $this->sanitizeIp($ip);
+                    if (!empty($sanitizedIp)) {
+                        Log::add('Visitor IP detected from trusted proxy header ' . $source . ': ' . $sanitizedIp, Log::DEBUG, 'accesskey');
+                        return $sanitizedIp;
+                    }
                 }
             }
+        }
+
+        // REMOTE_ADDR is the authoritative, non-spoofable source.
+        $remoteAddr = $this->sanitizeIp($input->server->getString('REMOTE_ADDR', ''));
+        if (!empty($remoteAddr)) {
+            Log::add('Visitor IP detected from REMOTE_ADDR: ' . $remoteAddr, Log::DEBUG, 'accesskey');
+            return $remoteAddr;
         }
 
         // If we reach here, IP detection failed
