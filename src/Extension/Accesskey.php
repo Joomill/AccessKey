@@ -175,14 +175,21 @@ class Accesskey extends CMSPlugin
                 Factory::getApplication()->redirect($url);
             }
         } catch (AccessKeyException $e) {
-            // Set the appropriate HTTP status code
-            Factory::getApplication()->setHeader('Status', $e->getCode() . ' ' . $this->getHttpStatusText($e->getCode()), true);
+            $app = Factory::getApplication();
 
-            // Output the error message
+            // Set the appropriate HTTP status code
+            $app->setHeader('Status', $e->getCode() . ' ' . $this->getHttpStatusText($e->getCode()), true);
+
+            // Force an explicit charset so the response cannot be re-interpreted
+            // through charset sniffing.
+            $app->setHeader('Content-Type', 'text/html; charset=utf-8', true);
+            $app->sendHeaders();
+
+            // Output the (admin-configured) error message
             echo $e->getMessage();
 
             // End the application
-            Factory::getApplication()->close();
+            $app->close();
         }
     }
 
