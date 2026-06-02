@@ -164,10 +164,11 @@ class Accesskey extends CMSPlugin
             }
 
             if ($this->params->get('failAction') === 'redirect') {
-                $url = $this->params->get('redirectUrl');
+                $url = trim((string) $this->params->get('redirectUrl'));
 
-                // Fallback to site root
-                if (!$url) {
+                // Fall back to the site root for empty or malformed URLs.
+                // Accept absolute URLs and root-relative internal paths only.
+                if ($url === '' || (!filter_var($url, FILTER_VALIDATE_URL) && strpos($url, '/') !== 0)) {
                     $url = Uri::root();
                 }
 
