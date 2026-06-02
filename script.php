@@ -26,7 +26,7 @@ class plgSystemAccesskeyInstallerScript
      * @var    string
      * @since  1.0.0
      */
-    private $minimumJoomlaVersion = '4.0';
+    private $minimumJoomlaVersion = '5.0';
 
     /**
      * Minimum PHP version to check
