@@ -37,7 +37,7 @@ PSR-4 namespace root `Joomill\Plugin\System\Accesskey` maps to `src/` (declared 
 ## Conventions
 
 - Target Joomla 5.0+ (minimum enforced in `script.php`) and the namespace-based plugin architecture (the v2.0.0 migration in git history). The codebase is being made Joomla 6 ready. Do not reintroduce legacy non-namespaced patterns or deprecated APIs (`$app->input`, `Factory::getLanguage()`, the `Factory` service locator inside the plugin).
-- Every class/method carries a docblock with `@since` tags and the GPL file header. Match the existing Joomla coding-standard formatting (tabs in `services/provider.php`, 4-space elsewhere as present). New members (classes, methods, properties) get the `@since` of the release that introduces them, not the project's first version. Members carried over from an earlier release keep their original `@since`. The current release is 2.1.0.
+- Every class/method carries a docblock with `@since` tags and the GPL file header. Match the existing Joomla coding-standard formatting (tabs in `services/provider.php`, 4-space elsewhere as present). New members (classes, methods, properties) get the `@since` of the release that introduces them, not the project's first version. Members carried over from an earlier release keep their original `@since`. The current release is 2.2.0.
 - All errors are logged through `Log::add(..., 'accesskey')` (the `accesskey` category), never surfaced as raw PHP errors. Preserve this pattern.
 - Bumping the version means editing `<version>` in `accesskey.xml`; user-facing strings live in the language `.ini` files, not hardcoded (except a few English fallbacks).
 
