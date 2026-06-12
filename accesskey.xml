@@ -90,8 +90,8 @@
         </fields>
     </config>
 
-    <!-- Help -->
-    <help url="https://www.joomill-extensions.com/documentation/access-key-plugin" />
+    <!-- Help button URL -->
+    <help key="" url="PLG_SYSTEM_ACCESSKEY_HELP_URL" />
 
     <!-- Changelog -->
     <changelogurl>
