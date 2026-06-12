@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~  package: Joomill Access Key plugin
-  ~  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
-  ~  license: GNU General Public License version 3 or later
-  ~  link: https://www.joomill-extensions.com
-  -->
-
 <extension type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_ACCESSKEY</name>
     <description>PLG_SYSTEM_ACCESSKEY_XML_DESCRIPTION</description>
@@ -15,7 +8,7 @@
     <license>GNU General Public License version 3 or later</license>
     <creationDate>June 2026</creationDate>
     <copyright>(C) 2026 Joomill Extensions</copyright>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <namespace path="src">Joomill\Plugin\System\Accesskey</namespace>
 
     <!-- Scripts to run on installation -->
@@ -96,6 +89,9 @@
             </fieldset>
         </fields>
     </config>
+
+    <!-- Help -->
+    <help url="https://www.joomill-extensions.com/documentation/access-key-plugin" />
 
     <!-- Changelog -->
     <changelogurl>
