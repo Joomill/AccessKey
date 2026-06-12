@@ -33,18 +33,23 @@ return new class implements ServiceProviderInterface {
      */
     public function register(Container $container): void
     {
+		$factory = function (Container $container) {
+			$subject = $container->get(DispatcherInterface::class);
+			$plugin  = new Accesskey(
+				$subject,
+				(array) PluginHelper::getPlugin('system', 'accesskey')
+			);
+			$plugin->setApplication(Factory::getApplication());
+
+			return $plugin;
+		};
+
+		// Container::lazy() exists since Joomla 6.1 (joomla/di 3.1.0) and creates the
+		// plugin on demand when the event is dispatched (PHP >= 8.4 lazy proxy; on
+		// older PHP it returns the plain factory). Joomla 5.x/6.0 lack the method.
 		$container->set(
 			PluginInterface::class,
-			function (Container $container) {
-				$subject = $container->get(DispatcherInterface::class);
-				$plugin  = new Accesskey(
-					$subject,
-					(array) PluginHelper::getPlugin('system', 'accesskey')
-				);
-				$plugin->setApplication(Factory::getApplication());
-
-				return $plugin;
-			}
+			method_exists($container, 'lazy') ? $container->lazy(Accesskey::class, $factory) : $factory
 		);
     }
 };
