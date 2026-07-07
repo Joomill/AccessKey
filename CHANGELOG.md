@@ -2,6 +2,9 @@
 
 All notable changes to the Extension are documented in this file.
 
+## 2.2.1 - 07/07/2026
+- Addition: update downloads from the Joomill update server now include diagnostic request headers with site and environment information for update logging; headers are only added and never affect the update
+- 
 ## 2.2.0 - 02/07/2026
 - Addition: the Help button in the plugin configuration now links to the Joomill documentation page (https://www.joomill-extensions.com/documentation/access-key-plugin)
 - Addition: support for plugin lazy loading: on Joomla 6.1+ with PHP >= 8.4 the plugin class is loaded on demand when the event is dispatched; older Joomla/PHP versions keep the regular loading

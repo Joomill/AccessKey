@@ -10,10 +10,14 @@ namespace Joomill\Plugin\System\Accesskey\Extension;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Event\Installer\BeforePackageDownloadEvent;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Version;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Event\EventInterface;
 use Joomla\Event\SubscriberInterface;
 use Joomill\Plugin\System\Accesskey\Helper\IpHelper;
@@ -53,7 +57,8 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'onAfterInitialise' => 'onAfterInitialise',
+            'onAfterInitialise'                => 'onAfterInitialise',
+            'onInstallerBeforePackageDownload' => 'onInstallerBeforePackageDownload',
         ];
     }
 
@@ -122,6 +127,76 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
             $this->getApplication()->setHeader('Status', '500 Internal Server Error', true);
             echo 'An error occurred in the Access Key plugin. Please check the logs.';
             $this->getApplication()->close();
+        }
+    }
+
+    /**
+     * Adds identifying headers to Joomla update downloads that target the Joomill
+     * update server, so the ochSubscriptions download log can record the requesting
+     * domain and environment. Works for every extension type (component, module,
+     * plugin, ...) because onInstallerBeforePackageDownload fires for all of them.
+     *
+     * Fail-safe by design: the whole body is wrapped in a try/catch (\Throwable) so
+     * a problem here can never make an update fail. It only ever ADDS headers and
+     * never touches the download URL or the existing headers (e.g. the download key).
+     *
+     * @param   BeforePackageDownloadEvent  $event  The event being handled
+     *
+     * @return  void
+     *
+     * @since   2.2.0
+     */
+    public function onInstallerBeforePackageDownload(BeforePackageDownloadEvent $event): void
+    {
+        try {
+            $url = (string) $event->getArgument('url', '');
+
+            if ($url === '') {
+                return;
+            }
+
+            // Only enrich downloads from our own update server. Match the exact
+            // host or any subdomain of it, so the domain can never leak elsewhere.
+            $host = (string) Uri::getInstance($url)->getHost();
+
+            if ($host !== 'joomill-extensions.com' && !str_ends_with($host, '.joomill-extensions.com')) {
+                return;
+            }
+
+            $domain = Uri::getInstance()->getHost();
+
+            if ($domain === '') {
+                return;
+            }
+
+            // Only ADD to the existing headers; never overwrite the URL or the
+            // headers that already carry the download key.
+            $headers = (array) $event->getArgument('headers', []);
+
+            $headers['X-Requesting-Domain'] = $domain;
+
+            // Environment versions, best effort and each guarded on its own so a
+            // single failure can never block the rest.
+            try {
+                $headers['X-Requesting-Joomlacms-Version'] = (string) (new Version())->getShortVersion();
+            } catch (\Throwable $ignore) {
+            }
+
+            $headers['X-Requesting-Php-Version'] = PHP_VERSION;
+
+            try {
+                $db = Factory::getContainer()->get(DatabaseInterface::class);
+
+                if ($db->getVersion()) {
+                    $headers['X-Requesting-Db-Version'] = (string) $db->getVersion();
+                }
+            } catch (\Throwable $ignore) {
+            }
+
+            $event->setArgument('headers', $headers);
+        } catch (\Throwable $e) {
+            // Under no circumstance may this break an update. Swallow everything.
+            Log::add('Access Key update enrichment skipped: ' . $e->getMessage(), Log::WARNING, 'accesskey');
         }
     }
 
