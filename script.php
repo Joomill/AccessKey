@@ -10,10 +10,16 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Http\HttpFactory;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Installer\InstallerAdapter;
+use Joomla\CMS\Installer\InstallerHelper;
 use Joomla\CMS\Installer\InstallerScriptInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Version;
+use Joomla\Filesystem\File;
 
 /**
  * Installation script class for Access Key plugin
@@ -135,6 +141,10 @@ class plgSystemAccesskeyInstallerScript implements InstallerScriptInterface
         try {
             $this->loadInstallLanguage();
 
+            if ($type === 'install' || $type === 'update') {
+                $this->installJoomillUpdateLogging();
+            }
+
             if ($type === 'install') {
                 $this->printInstallMessage();
             }
@@ -149,6 +159,137 @@ class plgSystemAccesskeyInstallerScript implements InstallerScriptInterface
             // Still return true to not block the installation/uninstallation process
             // The error is logged but we don't want to prevent the process from completing
             return true;
+        }
+    }
+
+    /**
+     * Installs the shared "Joomill - Update Logging" installer plugin (plg_installer_joomill)
+     * when it is not yet present on the site. That plugin adds diagnostic request headers with
+     * site and environment information to update downloads from the Joomill update server, for
+     * update logging; one installed instance covers every Joomill extension on the site and it
+     * keeps itself up to date through its own update server afterwards.
+     *
+     * The download URL is resolved from the plugin's own update server XML (category 38), so no
+     * separate download location has to stay in sync with releases. Best effort by design: the
+     * whole body is wrapped in try/catch (\Throwable), every failure is swallowed and simply
+     * retried on the next install or update. This can never affect the installation or update
+     * of the extension itself.
+     *
+     * @return  void
+     *
+     * @since   2.2.1
+     */
+    private function installJoomillUpdateLogging(): void
+    {
+        try {
+            $db    = Factory::getContainer()->get('DatabaseDriver');
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('extension_id'))
+                ->from($db->quoteName('#__extensions'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+                ->where($db->quoteName('folder') . ' = ' . $db->quote('installer'))
+                ->where($db->quoteName('element') . ' = ' . $db->quote('joomill'));
+            $db->setQuery($query);
+
+            // Already present (enabled or deliberately disabled): leave it alone.
+            // Its updates run through the plugin's own update server.
+            if ($db->loadResult()) {
+                return;
+            }
+
+            // Send the same diagnostic headers the plugin itself would add, so this
+            // bootstrap download shows up in the download log as well.
+            $headers = ['X-Requesting-Domain' => Uri::getInstance()->getHost()];
+
+            try {
+                $headers['X-Requesting-Joomlacms-Version'] = (string) (new Version())->getShortVersion();
+            } catch (\Throwable $ignore) {
+            }
+
+            $headers['X-Requesting-Php-Version'] = PHP_VERSION;
+
+            $http = HttpFactory::getHttp();
+
+            // Resolve the download URL of the latest version from the update server XML.
+            $response = $http->get(
+                'https://www.joomill-extensions.com/index.php?option=com_ochsubscriptions&view=updater&format=xml&cat=38',
+                $headers,
+                5
+            );
+
+            if ($response->getStatusCode() !== 200) {
+                return;
+            }
+
+            $updates = simplexml_load_string((string) $response->getBody(), \SimpleXMLElement::class, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+            $downloadUrl = '';
+            $checksum    = '';
+            $latest      = '';
+
+            foreach (($updates ? $updates->update : []) as $update) {
+                $version = (string) $update->version;
+
+                if ($latest !== '' && version_compare($version, $latest, '<=')) {
+                    continue;
+                }
+
+                // ochSubscriptions nests the download URL in a <downloads> block;
+                // plain update XML may carry <downloadurl> directly on <update>.
+                $url = '';
+
+                if (isset($update->downloads->downloadurl)) {
+                    $url = trim((string) $update->downloads->downloadurl);
+                } elseif (isset($update->downloadurl)) {
+                    $url = trim((string) $update->downloadurl);
+                }
+
+                if ($url === '') {
+                    continue;
+                }
+
+                $latest      = $version;
+                $downloadUrl = $url;
+                $checksum    = strtolower(trim((string) $update->sha256));
+            }
+
+            if ($downloadUrl === '') {
+                return;
+            }
+
+            $package = $http->get($downloadUrl, $headers, 5);
+
+            if ($package->getStatusCode() !== 200 || (string) $package->getBody() === '') {
+                return;
+            }
+
+            $tmpFile = Factory::getApplication()->get('tmp_path') . '/plg_installer_joomill.zip';
+
+            if (File::write($tmpFile, (string) $package->getBody()) === false) {
+                return;
+            }
+
+            // Verify the package integrity when the update XML provides a checksum.
+            if ($checksum !== '' && !hash_equals($checksum, (string) hash_file('sha256', $tmpFile))) {
+                InstallerHelper::cleanupInstall($tmpFile, '');
+
+                return;
+            }
+
+            $unpacked = InstallerHelper::unpack($tmpFile, true);
+
+            if (\is_array($unpacked) && !empty($unpacked['dir']) && is_dir($unpacked['dir'])) {
+                // Deliberately a NEW Installer instance: Installer::getInstance() would
+                // return the installer that is running this extension install right now.
+                $installer = new Installer();
+                $installer->setDatabase($db);
+                $installer->install($unpacked['dir']);
+            }
+
+            InstallerHelper::cleanupInstall($tmpFile, \is_array($unpacked) ? (string) ($unpacked['extractdir'] ?? '') : '');
+        } catch (\Throwable $e) {
+            // Best effort only: never let this affect the extension install or update.
+            Log::add('Access Key: could not install the Joomill Update Logging plugin: ' . $e->getMessage(), Log::WARNING, 'accesskey');
         }
     }
 
