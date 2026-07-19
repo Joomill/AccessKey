@@ -5,6 +5,7 @@ All notable changes to the Extension are documented in this file.
 ## 2.2.2 - 01/08/2026
 - Improvement: the entire code base now complies with the official Joomla coding standard (the PSR-12 based Joomla CMS ruleset); code style only, no functional changes
 - Improvement: the installer script was modernized to an anonymous class implementing Joomla's InstallerScriptInterface, removing the last legacy (non-namespaced) class
+- Improvement: the build script (build.php, dev-only, not shipped) now also passes the Joomla CMS phpcs ruleset: control structure spacing, file header spacing and a PSR1 side effects annotation
 
 ## 2.2.1 - 07/07/2026
 - Addition: update downloads from the Joomill update server now include diagnostic request headers with site and environment information for update logging; headers are only added and never affect the update. The extension installs the shared "Joomill - Update Logging" plugin for this when it is not yet present on the site
@@ -15,7 +16,6 @@ All notable changes to the Extension are documented in this file.
 - Improvement: the installer script now implements Joomla's InstallerScriptInterface (modern install path, Joomla 4.2+) instead of the deprecated legacy script pattern
 
 ## TODO
-
 Planned for 2.3.0:
 - Addition: option to also protect the Joomla Web Services API (api client), default off. Denied requests get a fixed 401 JSON:API response (configured failAction is ignored for the api client), the whitelist keeps working, and the key must be supplied on every API request because API clients do not persist a session cookie
 - Addition: stealth mode as third failAction: serve the site's own 404 page so the administrator backend appears non-existent to scanners
