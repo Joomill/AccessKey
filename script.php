@@ -1,13 +1,16 @@
 <?php
-/*
- *  package: Joomill Access Key plugin
- *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 3 or later
- *  link: https://www.joomill-extensions.com
+
+/**
+ * Access Key
+ *
+ * @copyright   Copyright (c) 2026 Jeroen Moolenschot | Joomill
+ * @license     GNU General Public License version 3 or later; see LICENSE
+ * @link        https://www.joomill-extensions.com
  */
 
-// No direct access.
-defined('_JEXEC') or die;
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Http\HttpFactory;
@@ -26,8 +29,7 @@ use Joomla\Filesystem\File;
  *
  * @since  1.0.0
  */
-class plgSystemAccesskeyInstallerScript implements InstallerScriptInterface
-{
+return new class () implements InstallerScriptInterface {
     /**
      * Minimum Joomla version to check
      *
@@ -371,6 +373,4 @@ class plgSystemAccesskeyInstallerScript implements InstallerScriptInterface
             . '<a class="m-2" href="https://community.joomla.org/service-providers-directory/listings/67:joomill.html" target="_blank"><i class="fa-brands fa-joomla"> </i></a>'
             . '</div>';
     }
-}
-
-return new plgSystemAccesskeyInstallerScript();
+};

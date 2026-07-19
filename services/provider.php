@@ -1,12 +1,16 @@
 <?php
-/*
- *  package: Joomill Access Key plugin
- *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 3 or later
- *  link: https://www.joomill-extensions.com
+
+/**
+ * Access Key
+ *
+ * @copyright   Copyright (c) 2026 Jeroen Moolenschot | Joomill
+ * @license     GNU General Public License version 3 or later; see LICENSE
+ * @link        https://www.joomill-extensions.com
  */
 
-defined('_JEXEC') or die;
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\Extension\PluginInterface;
 use Joomla\CMS\Factory;
@@ -33,23 +37,23 @@ return new class implements ServiceProviderInterface {
      */
     public function register(Container $container): void
     {
-		$factory = function (Container $container) {
-			$subject = $container->get(DispatcherInterface::class);
-			$plugin  = new Accesskey(
-				$subject,
-				(array) PluginHelper::getPlugin('system', 'accesskey')
-			);
-			$plugin->setApplication(Factory::getApplication());
+        $factory = function (Container $container) {
+            $subject = $container->get(DispatcherInterface::class);
+            $plugin  = new Accesskey(
+                $subject,
+                (array) PluginHelper::getPlugin('system', 'accesskey')
+            );
+            $plugin->setApplication(Factory::getApplication());
 
-			return $plugin;
-		};
+            return $plugin;
+        };
 
-		// Container::lazy() exists since Joomla 6.1 (joomla/di 3.1.0) and creates the
-		// plugin on demand when the event is dispatched (PHP >= 8.4 lazy proxy; on
-		// older PHP it returns the plain factory). Joomla 5.x/6.0 lack the method.
-		$container->set(
-			PluginInterface::class,
-			method_exists($container, 'lazy') ? $container->lazy(Accesskey::class, $factory) : $factory
-		);
+        // Container::lazy() exists since Joomla 6.1 (joomla/di 3.1.0) and creates the
+        // plugin on demand when the event is dispatched (PHP >= 8.4 lazy proxy; on
+        // older PHP it returns the plain factory). Joomla 5.x/6.0 lack the method.
+        $container->set(
+            PluginInterface::class,
+            method_exists($container, 'lazy') ? $container->lazy(Accesskey::class, $factory) : $factory
+        );
     }
 };

@@ -2,6 +2,10 @@
 
 All notable changes to the Extension are documented in this file.
 
+## 2.2.2 - 01/08/2026
+- Improvement: the entire code base now complies with the official Joomla coding standard (the PSR-12 based Joomla CMS ruleset); code style only, no functional changes
+- Improvement: the installer script was modernized to an anonymous class implementing Joomla's InstallerScriptInterface, removing the last legacy (non-namespaced) class
+
 ## 2.2.1 - 07/07/2026
 - Addition: update downloads from the Joomill update server now include diagnostic request headers with site and environment information for update logging; headers are only added and never affect the update. The extension installs the shared "Joomill - Update Logging" plugin for this when it is not yet present on the site
 

@@ -1,14 +1,18 @@
 <?php
-/*
- *  package: Joomill Access Key plugin
- *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
- *  license: GNU General Public License version 3 or later
- *  link: https://www.joomill-extensions.com
+
+/**
+ * Access Key
+ *
+ * @copyright   Copyright (c) 2026 Jeroen Moolenschot | Joomill
+ * @license     GNU General Public License version 3 or later; see LICENSE
+ * @link        https://www.joomill-extensions.com
  */
 
 namespace Joomill\Plugin\System\Accesskey\Extension;
 
-defined('_JEXEC') or die;
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
@@ -113,7 +117,6 @@ class Accesskey extends CMSPlugin implements SubscriberInterface
 
             // Access denied - handle according to configuration
             $this->handleAccessDenied();
-
         } catch (\Exception $e) {
             // Log any unexpected errors
             Log::add('Unexpected error in Access Key plugin: ' . $e->getMessage(), Log::ERROR, 'accesskey');

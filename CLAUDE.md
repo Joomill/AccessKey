@@ -30,14 +30,15 @@ PSR-4 namespace root `Joomill\Plugin\System\Accesskey` maps to `src/` (declared 
 - `src/Field/IpField.php` — custom form field (`type="ip"`) that displays the current visitor IP read-only in the plugin config screen. Registered via `addfieldprefix` in `accesskey.xml`.
 - `src/Exception/AccessKeyException.php` — typed exception with named static factories (`unauthorized`, `ipDetectionFailed`, etc.) carrying HTTP status codes.
 - `services/provider.php` — `ServiceProviderInterface` that wires the plugin into the container.
-- `script.php` — install/uninstall script (`plgSystemAccesskeyInstallerScript`): enforces minimum PHP/Joomla versions in `preflight`, renders the Joomill branding/thank-you screen in `postflight`.
+- `script.php` — install/uninstall script (returns an anonymous class implementing `InstallerScriptInterface`, the Joomla 4.2+ pattern): enforces minimum PHP/Joomla versions in `preflight`, renders the Joomill branding/thank-you screen in `postflight`.
 - `accesskey.xml` — the manifest: metadata, config fields, files list, update server URLs.
 - `language/<locale>/plg_system_accesskey[.sys].ini` — translations. `.sys.ini` is for manifest-level strings (name/description shown in the extension list); the plain `.ini` is for runtime/config strings.
 
 ## Conventions
 
 - Target Joomla 5.0+ (minimum enforced in `script.php`) and the namespace-based plugin architecture (the v2.0.0 migration in git history). The codebase is being made Joomla 6 ready. Do not reintroduce legacy non-namespaced patterns or deprecated APIs (`$app->input`, `Factory::getLanguage()`, the `Factory` service locator inside the plugin).
-- Every class/method carries a docblock with `@since` tags and the GPL file header. Match the existing Joomla coding-standard formatting (tabs in `services/provider.php`, 4-space elsewhere as present). New members (classes, methods, properties) get the `@since` of the release that introduces them, not the project's first version. Members carried over from an earlier release keep their original `@since`. The current release is 2.2.0.
+- The code passes phpcs against the Joomla CMS ruleset (PSR-12 + max line length 560, the `ruleset.xml` from the joomla-cms repo — not the old tabs-based `joomla/coding-standards` package): 4-space indentation everywhere, LF line endings (enforced via `.gitattributes`), a blank line after `<?php`, and every `\defined('_JEXEC') or die;` guard wrapped in `// phpcs:disable PSR1.Files.SideEffects` / `// phpcs:enable` comments (the pattern Joomla core uses). Keep new code compliant.
+- Every class/method carries a docblock with `@since` tags and the GPL file header. New members (classes, methods, properties) get the `@since` of the release that introduces them, not the project's first version. Members carried over from an earlier release keep their original `@since`. The current release is 2.2.2.
 - All errors are logged through `Log::add(..., 'accesskey')` (the `accesskey` category), never surfaced as raw PHP errors. Preserve this pattern.
 - Bumping the version means editing `<version>` in `accesskey.xml`; user-facing strings live in the language `.ini` files, not hardcoded (except a few English fallbacks).
 
